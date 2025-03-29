@@ -3,10 +3,14 @@ import CartOverView from '../features/Cart/CartOverview';
 import { Outlet, useNavigation } from 'react-router-dom';
 import Loader from './Loader';
 import '../index.css';
+import { useSelector } from 'react-redux';
+import { checkIsCardEmpty } from '../features/Cart/cartSlice';
 
 function AppLayout() {
   const navigation = useNavigation();
   const isLoading = navigation.state == 'loading';
+
+  const isEmptyCart = useSelector(checkIsCardEmpty);
 
   return (
     <div className="grid h-screen grid-rows-[auto_1fr_auto]">
@@ -23,7 +27,7 @@ function AppLayout() {
           <Outlet />
         </main>
       </div>
-      <CartOverView />
+      {!isEmptyCart && <CartOverView />}
     </div>
   );
 }
