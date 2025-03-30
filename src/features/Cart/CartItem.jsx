@@ -6,7 +6,7 @@ import QuantitySelector from '../../ui/QuantitySelector';
 import { formatCurrency } from '../../utilities/helpers';
 
 function CartItem({ item }) {
-  const { id, name, quantity, totalPrice } = item;
+  const { pizzaId, name, quantity, totalPrice } = item;
 
   return (
     <li className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -17,7 +17,7 @@ function CartItem({ item }) {
         <p className="font-bold">
           {formatCurrency(totalPrice)}
         </p>
-        <QuantitySelector id={id} />
+        <QuantitySelector id={pizzaId} />
       </div>
     </li>
   );

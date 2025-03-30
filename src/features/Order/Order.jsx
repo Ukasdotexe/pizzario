@@ -1,15 +1,23 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from 'react-router-dom';
+import {
+  useFetcher,
+  useLoaderData,
+} from 'react-router-dom';
 import { getOrder } from '../../services/apiRestaurant';
 import {
   calcMinutesLeft,
   formatCurrency,
   formatDate,
 } from '../../utilities/helpers';
-
+import { useEffect } from 'react';
+import OrderItem from './OrderItem';
+import UpdateOrder from './UpdateOrder';
 function Order() {
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
+
+  const order = useLoaderData();
+
   const {
     id,
     status,
@@ -18,12 +26,17 @@ function Order() {
     orderPrice,
     estimatedDelivery,
     cart,
-  } = useLoaderData();
+  } = order;
 
-  console.log(useLoaderData());
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
-  // console.log(cart);
+  const fetcher = useFetcher();
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state == 'idle')
+      fetcher.load('/menu');
+  }, [fetcher]);
+
   return (
     <div className="space-y-8 px-4 py-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -55,41 +68,25 @@ function Order() {
         </p>
       </div>
 
-      <ul className="divide-y divide-stone-200 border-y border-stone-200">
-        {cart.map((item) => {
-          return (
-            <li className="flex justify-between space-y-1 py-3">
-              <div>
-                <p>
-                  <span className="text-sm font-bold">
-                    {item.quantity} &times;
-                  </span>
-                  {item.name}
-                </p>
-                <p className="text-sm capitalize italic text-stone-500">
-                  tomato, mozzarella, basil
-                </p>
-              </div>
-              <p className="text-sm font-bold">
-                {formatCurrency(item.unitPrice)}
-              </p>
-            </li>
-          );
-        })}
+      {fetcher.data && (
+        <ul className="divide-y divide-stone-200 border-y border-stone-200">
+          {cart.map((item) => {
+            return (
+              <OrderItem
+                key={item.pizzaId}
+                item={item}
+                ingredients={
+                  fetcher.data.find(
+                    (menuItem) =>
+                      menuItem.id === item.pizzaId,
+                  ).ingredients
+                }
+              />
+            );
+          })}
+        </ul>
+      )}
 
-        {/* <li className="flex justify-between space-y-1 py-3">
-          <div>
-            <p>
-              <span className="text-sm font-bold">2</span>
-              &times; Margherita
-            </p>
-            <p className="text-sm capitalize italic text-stone-500">
-              tomato, mozzarella, basil
-            </p>
-          </div>
-          <p className="text-sm font-bold">€12.00</p>
-        </li> */}
-      </ul>
       <div className="mt-2 space-y-2 bg-stone-200 px-6 py-5">
         <p className="text-sm font-medium text-stone-600">
           Price pizza: {formatCurrency(orderPrice)}
@@ -104,6 +101,8 @@ function Order() {
           {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+
+      {!priority && <UpdateOrder order={order} />}
     </div>
   );
 }

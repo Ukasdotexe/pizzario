@@ -8,13 +8,21 @@ function OrderItem({
   const { quantity, name, totalPrice } = item;
 
   return (
-    <li>
+    <li className="flex justify-between space-y-1 py-3">
       <div>
         <p>
-          <span>{quantity}&times;</span> {name}
+          <span className="text-sm font-bold">
+            {quantity} &times;
+          </span>
+          {name}
         </p>
-        <p>{formatCurrency(totalPrice)}</p>
+        <p className="text-sm capitalize italic text-stone-500">
+          {ingredients.join(', ')}
+        </p>
       </div>
+      <p className="text-sm font-bold">
+        {formatCurrency(totalPrice)}
+      </p>
     </li>
   );
 }
